@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ayesha Enterprises - GST Smart Bill</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            font-size: 11px;
+            padding: 10px;
+            background: #f0f2f5;
+        }
+
+        .invoice-box {
+            width: 850px;
+            margin: auto;
+            border: 1.5px solid #000;
+            background: #fff;
+            padding: 0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 1.5px solid #000;
+            padding: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .tax-label {
+            background: #f2f2f2;
+            border: 1px solid #000;
+            display: inline-block;
+            padding: 2px 25px;
+            font-weight: bold;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1.5px solid #000;
+        }
+
+        .section {
+            padding: 10px;
+            border-right: 1.5px solid #000;
+            min-height: 130px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            border-bottom: 1.5px solid #000;
+        }
+
+        .meta-item {
+            border-right: 1px solid #000;
+            padding: 6px;
+            border-bottom: 1px solid #000;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #f2f2f2;
+            text-transform: uppercase;
+            font-size: 10px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 92%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            font-size: 11px;
+        }
+
+        .gst-btn-group {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .gst-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        .gst-btn.active {
+            background: #d32f2f;
+            font-weight: bold;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            border-top: 1.5px solid #000;
+        }
+
+        .bank-area {
+            padding: 13px;
+            border-right: 1.7px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tax-calc {
+            padding: 12px;
+            text-align: right;
+            line-height: 2;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .words-box {
+            border-top: 1.5px solid #000;
+            padding: 8px 12px;
+            background: #fff;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .signature-area {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            border-top: 1px solid #000;
+            min-height: 140px;
+        }
+
+        .terms {
+            padding: 10px;
+            border-right: 1.5px solid #000;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .sign-box {
+            text-align: center;
+            padding: 15px;
+            position: relative;
+        }
+
+        /* Nayi Image Styling */
+        .qr-img {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+            border: 1px solid #eee;
+        }
+
+        .stamp-img {
+            width: 170px;
+            mix-blend-mode: multiply;
+            margin-top: -10px;
+        }
+
+        .btn-panel {
+            width: 850px;
+            margin: 0 auto 10px auto;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+
+        .party-db {
+            width: 850px;
+            margin: 0 auto 10px auto;
+            background: #e3f2fd;
+            padding: 15px;
+            border: 2px solid #1a73e8;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button.main-btn {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 0 5px;
+            color: white;
+        }
+
+        @media print {
+
+            .btn-panel,
+            .party-db,
+            .gst-btn-group {
+                display: none;
+            }
+
+            .invoice-box {
+                border: 2px solid #000;
+            }
+
+            input,
+            select,
+            textarea {
+                border: none;
+                background: transparent;
+            }
+        }
+    </style>
+</head>
+<script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+<body onload="initApp()">
+
+    <div class="party-db">
+        <h3 style="margin-top:0; color:#1a73e8;">Step 1: Save Party & GST Details</h3>
+        <div style="display:flex; gap:10px; margin-bottom:10px;">
+            <input type="text" id="regName" placeholder="Buyer Party Name" style="flex:2;">
+            <input type="text" id="regGST" placeholder="Party GSTIN" style="flex:1;">
+            <button onclick="saveParty()"
+                style="background:#28a745; border:none; color:white; padding:5px 15px; border-radius:4px; cursor:pointer;">Save
+                to Database</button>
+        </div>
+        <textarea id="regAddr" placeholder="Full Address of Party" style="width:98%; height:35px;"></textarea>
+    </div>
+
+    <div class="btn-panel">
+        <button class="main-btn" style="background:#1a73e8" onclick="printBill()">🖨️ Print & Next Invoice</button>
+        <button class="main-btn" style="background:#ff9800" onclick="exportJSON()">📄 E-Way Bill JSON</button>
+        <button class="main-btn" style="background:#d32f2f" onclick="clearDB()">♻️ Reset Everything</button>
+    </div>
+
+    <div class="invoice-box">
+        <div class="header">
+            <h1>AYESHA ENTERPRISES</h1>
+            <p>00 KASBA STREET Olpad Surat, Gujarat, 394540<br>
+                Contact: 9727975024 | GSTIN: <strong>24ZGPK5099J1ZQ</strong></p>
+            <div class="tax-label">TAX INVOICE</div>
+        </div>
+
+        <div class="grid-container">
+            <div class="section">
+                <strong>Select Party:</strong>
+                <select id="partyDropdown" onchange="fillParty()" style="margin: 5px 0; border: 2px solid #1a73e8;">
+                    <option value="">-- Choose From List --</option>
+                </select>
+                <hr>
+                <strong>Buyer Name:</strong><br>
+                <input type="text" id="bName"><br>
+                <strong>GSTIN:</strong> <input type="text" id="bGST" style="color:red; font-weight:bold;"><br>
+                <strong>Address:</strong> <textarea id="bAddr" rows="3"></textarea>
+            </div>
+            <div class="section" style="border-right:none;">
+                <strong>Consignee (Shipping Address):</strong><br>
+                <textarea id="dAddr" rows="8"></textarea>
+            </div>
+        </div>
+
+        <div class="meta-grid">
+            <div class="meta-item">Invoice No: <input type="text" id="invNo" style="color:red;"></div>
+            <div class="meta-item">Date: <input type="date" id="invDate"></div>
+            <div class="meta-item">Vehicle No: <input type="text" id="vNo" placeholder="GJ19XX0000"></div>
+            <div class="meta-item" style="border-right:none;">Distance: <input type="number" id="dist" value="0"> km
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th width="5%">Sr.</th>
+                    <th width="40%">Name Of Product</th>
+                    <th width="10%">HSN</th>
+                    <th width="10%">Qty</th>
+                    <th width="10%">Rate</th>
+                    <th width="10%">GST %</th>
+                    <th width="15%">Value (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" id="pName" value="Green Plastic patti" list="products"></td>
+                    <td><input type="text" id="hsn" value="3915"></td>
+                    <td><input type="number" id="qty" value="0" oninput="calc()"></td>
+                    <td><input type="number" id="rate" value="0" oninput="calc()"></td>
+                    <td>
+                        <input type="number" id="gstPerc" value="18" readonly
+                            style="width:40px; text-align:center; background:#eee;">
+                        <div class="gst-btn-group">
+                            <button class="gst-btn" onclick="setGST(5)">5%</button>
+                            <button class="gst-btn" onclick="setGST(12)">12%</button>
+                            <button class="gst-btn active" id="btn18" onclick="setGST(18)">18%</button>
+                        </div>
+                    </td>
+                    <td id="rowTotal" style="font-weight:bold;">0.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer-grid">
+            <div class="bank-area">
+                <div style="font-size: 12px; line-height: 1.8em;">
+                    <strong>BANK DETAILS :-</strong><br>
+                    A/C NAME : <strong>AYESHA ENTERPRISES</strong><br>
+                    A/C NO. : <strong>50200108666890</strong><br>
+                    IFSC : <strong>HDFC0001706</strong><br>
+                    BRANCH : <strong>SACHIN SURAT</strong><br>
+                    A/C TYPE: <strong>CURRENT</strong>
+                    MMID : <strong>9240218</strong>
+
+                    UPI PAMENT : <strong>ayeshaenterprises.36661411@hdfcbank</strong>
+                </div>
+                <img src="qre.jpg.jpeg"
+                    style="width: 150px; height: 150px; object-fit: contain; border: 1px solid #eee;">
+            </div>
+            <div class="tax-calc">
+                Taxable Amount: ₹ <span id="taxable">0.00</span><br>
+                SGST Amount: ₹ <span id="sgst">0.00</span><br>
+                CGST Amount: ₹ <span id="cgst">0.00</span>
+                <hr>
+                <span style="font-size:16px;">BILL AMOUNT: ₹ <span id="net" style="color:blue;">0.00</span></span>
+            </div>
+        </div>
+
+        <div class="words-box">
+            Total Amount in Words: <span id="amountWords">Zero Rupees Only</span>
+        </div>
+
+        <div class="signature-area">
+            <div class="terms">
+                <strong>TERMS AND CONDITIONS:</strong><br>
+                1. All disputes are subject to Surat jurisdiction.<br>
+                2. This is an electronically generated document.<br>
+                3. Goods once sold will not be taken back.<br>
+                4. Interest @18% p.a. will be charged for late payment.
+            </div>
+            <div class="sign-box">
+                <p style="margin:0;">For, <strong>AYESHA ENTERPRISES</strong></p>
+                <img src="sign.jpg.jpeg"
+                    style="width: 150px; height: 85px; object-fit: contain; border: 1px solid #eee;">
+
+
+                <p style="margin:0; border-top:1.5px solid #000; padding-top:5px; font-weight:bold;">Authorised
+                    Signatory</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('ayesha_db')) || [];
+
+        function initApp() {
+            document.getElementById('invDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('invNo').value = localStorage.getItem('ayesha_count') || 1;
+            updateDropdown();
+        }
+
+        function saveParty() {
+            let n = document.getElementById('regName').value;
+            let g = document.getElementById('regGST').value;
+            let a = document.getElementById('regAddr').value;
+            if (!n || !g) return alert("Details bharein!");
+            db.push({ n, g, a });
+            localStorage.setItem('ayesha_db', JSON.stringify(db));
+            updateDropdown();
+            alert("Party Saved!");
+        }
+
+        function updateDropdown() {
+            let sel = document.getElementById('partyDropdown');
+            sel.innerHTML = '<option value="">-- Choose Party --</option>';
+            db.forEach((p, i) => {
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.innerHTML = p.n;
+                sel.appendChild(opt);
+            });
+        }
+
+        function fillParty() {
+            let i = document.getElementById('partyDropdown').value;
+            if (i === "") return;
+            let p = db[i];
+            document.getElementById('bName').value = p.n;
+            document.getElementById('bGST').value = p.g;
+            document.getElementById('bAddr').value = p.a;
+            document.getElementById('dAddr').value = p.n + "\n" + p.a + "\nGSTIN: " + p.g;
+        }
+
+        function setGST(val) {
+            document.getElementById('gstPerc').value = val;
+            document.querySelectorAll('.gst-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            calc();
+        }
+
+        function calc() {
+            let q = parseFloat(document.getElementById('qty').value) || 0;
+            let r = parseFloat(document.getElementById('rate').value) || 0;
+            let g = parseFloat(document.getElementById('gstPerc').value);
+            let tx = q * r;
+            let gst = (tx * g) / 100;
+            let total = tx + gst;
+
+            document.getElementById('rowTotal').innerText = tx.toFixed(2);
+            document.getElementById('taxable').innerText = tx.toFixed(2);
+            document.getElementById('sgst').innerText = (gst / 2).toFixed(2);
+            document.getElementById('cgst').innerText = (gst / 2).toFixed(2);
+            document.getElementById('net').innerText = total.toFixed(2);
+            document.getElementById('amountWords').innerText = priceToWords(Math.round(total));
+        }
+
+        function priceToWords(num) {
+            if (num === 0) return 'Zero Rupees Only';
+            const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+            const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const format = (n) => {
+                if (n < 20) return a[n];
+                if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
+                if (n < 1000) return a[Math.floor(n / 100)] + 'Hundred ' + (n % 100 !== 0 ? format(n % 100) : '');
+                if (n < 100000) return format(Math.floor(n / 1000)) + 'Thousand ' + (n % 1000 !== 0 ? format(n % 1000) : '');
+                if (n < 10000000) return format(Math.floor(n / 100000)) + 'Lakh ' + (n % 100000 !== 0 ? format(n % 100000) : '');
+                return format(Math.floor(n / 10000000)) + 'Crore ' + (n % 10000000 !== 0 ? format(n % 10000000) : '');
+            };
+            return format(num) + 'Rupees Only';
+        }
+
+        function printBill() {
+            let c = parseInt(document.getElementById('invNo').value);
+            localStorage.setItem('ayesha_count', c + 1);
+            window.print();
+            setTimeout(() => { location.reload(); }, 800);
+        }
+
+        function exportJSON() {
+            let eway = {
+                docNo: document.getElementById('invNo').value,
+                toGstin: document.getElementById('bGST').value,
+                vehicle: document.getElementById('vNo').value,
+                total: document.getElementById('net').innerText
+            };
+            let blob = new Blob([JSON.stringify(eway, null, 2)], { type: "application/json" });
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "EWay_" + eway.docNo + ".json";
+            a.click();
+        }
+
+        function clearDB() {
+            if (confirm("DANGER: Sab delete ho jayega. Reset karein?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+<script>
+    function generateDynamicQR() {
+        // 1. Apni details yahan bharein
+        const upiId = "yourname@upi"; // Apni asli UPI ID yahan likhein
+        const payeeName = "AYESHA ENTERPRISES";
+
+        // 2. Bill ke 'Total' waale TD/Span ki ID se amount uthana
+        // Maan lijiye aapke total amount waale box ki id="totalAmount" hai
+        let amountElement = document.getElementById("totalAmount");
+        let amount = amountElement ? amountElement.innerText : "0";
+
+        // Amount se extra symbols (₹, symbols) hatana
+        amount = amount.replace(/[^\d.-]/g, '');
+
+        // 3. UPI Deep Link String
+        const upiUrl = `upi://pay?pa=${upiId}&pn=${payeeName}&am=${amount}&cu=INR`;
+
+        // 4. QR Code generate karna
+        document.getElementById("qrcode_container").innerHTML = ""; // Purana saaf karna
+        new QRCode(document.getElementById("qrcode_container"), {
+            text: upiUrl,
+            width: 150,
+            height: 150,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    }
+
+    // Page load hone par QR generate karein
+    window.onload = generateDynamicQR;
+</script>
+
+</html>
